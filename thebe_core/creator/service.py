@@ -677,6 +677,8 @@ class CreatorService:
         dumped = result.model_dump(mode="json")
         async with AsyncSession(self.audit.engine) as session:
             row = await session.get(AssetDB, asset_id)
+            if row is None:
+                raise KeyError(asset_id)
             row.evaluation = dumped
             row.governance_status = label
             await session.commit()
@@ -712,6 +714,8 @@ class CreatorService:
         book = await self.get_book(tenant_id, asset.book_id)
         async with AsyncSession(self.audit.engine) as session:
             row = await session.get(AssetDB, asset_id)
+            if row is None:
+                raise KeyError(asset_id)
             row.approval_status = "approved"
             await session.commit()
             await session.refresh(row)
@@ -728,6 +732,8 @@ class CreatorService:
         book = await self.get_book(tenant_id, asset.book_id)
         async with AsyncSession(self.audit.engine) as session:
             row = await session.get(AssetDB, asset_id)
+            if row is None:
+                raise KeyError(asset_id)
             row.approval_status = "rejected"
             row.author_correction = note
             await session.commit()

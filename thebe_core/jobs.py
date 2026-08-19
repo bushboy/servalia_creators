@@ -147,6 +147,8 @@ class JobService:
             result = await self._execute(job)
             async with AsyncSession(self.audit.engine) as session:
                 row = await session.get(JobDB, job.job_id)
+                if row is None:
+                    return
                 row.status = "completed"
                 row.result = result
                 row.last_error = None
@@ -159,6 +161,8 @@ class JobService:
             logger.exception("Job %s failed: %s", job.job_id, exc)
             async with AsyncSession(self.audit.engine) as session:
                 row = await session.get(JobDB, job.job_id)
+                if row is None:
+                    return
                 row.retry_count += 1
                 row.last_error = str(exc)
                 if row.retry_count >= row.max_retries:
@@ -205,11 +209,14 @@ class JobService:
 
         threshold = datetime.now(timezone.utc) - timedelta(hours=24)
         async with AsyncSession(self.audit.engine) as session:
+            customer_id_col: Any = CustomerDB.customer_id
+            customer_name_col: Any = CustomerDB.name
+            event_ts_col: Any = AuditEventDB.timestamp
             subq = (
                 select(
-                    CustomerDB.customer_id,
-                    CustomerDB.name,
-                    func.max(AuditEventDB.timestamp).label("last_event"),
+                    customer_id_col,
+                    customer_name_col,
+                    func.max(event_ts_col).label("last_event"),
                 )
                 .where(
                     CustomerDB.tenant_id == tenant_id,

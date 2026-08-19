@@ -32,6 +32,17 @@ from thebe_core.models import (
 )
 
 
+def _sa_col(attr: Any) -> Any:
+    """Treat a SQLModel field as a SQLAlchemy column for query construction."""
+    return attr
+
+
+def _order_expr(model: type[Any], sort: str, default: str = "created_at") -> Any:
+    field, _, direction = sort.partition("_")
+    column = getattr(model, field, getattr(model, default))
+    return column.asc() if direction == "asc" else column.desc()
+
+
 class AuditService:
     """Evidence-grade async audit store backed by SQLModel/SQLAlchemy."""
 
@@ -353,12 +364,7 @@ class AuditService:
             if assignee is not None:
                 stmt = stmt.where(FindingDB.assignee == assignee)
 
-            field, _, direction = sort.partition("_")
-            order_field = getattr(FindingDB, field, FindingDB.created_at)
-            if direction == "asc":
-                stmt = stmt.order_by(order_field.asc())
-            else:
-                stmt = stmt.order_by(order_field.desc())
+            stmt = stmt.order_by(_order_expr(FindingDB, sort))
 
             stmt = stmt.limit(limit)
             result = await session.execute(stmt)
@@ -533,12 +539,7 @@ class AuditService:
             if assignee is not None:
                 stmt = stmt.where(TaskDB.assignee == assignee)
 
-            field, _, direction = sort.partition("_")
-            order_field = getattr(TaskDB, field, TaskDB.created_at)
-            if direction == "asc":
-                stmt = stmt.order_by(order_field.asc())
-            else:
-                stmt = stmt.order_by(order_field.desc())
+            stmt = stmt.order_by(_order_expr(TaskDB, sort))
 
             stmt = stmt.limit(limit)
             result = await session.execute(stmt)
@@ -674,7 +675,7 @@ class AuditService:
                 .where(
                     DocumentVersionDB.document_id == document_id,
                     DocumentVersionDB.tenant_id == tenant_id,
-                    DocumentVersionDB.superseded_by.is_(None),
+                    _sa_col(DocumentVersionDB.superseded_by).is_(None),
                 )
                 .order_by(DocumentVersionDB.version_number.desc())
                 .limit(1)
@@ -697,7 +698,7 @@ class AuditService:
                 select(DocumentVersionDB)
                 .where(
                     DocumentVersionDB.tenant_id == tenant_id,
-                    DocumentVersionDB.superseded_by.is_(None),
+                    _sa_col(DocumentVersionDB.superseded_by).is_(None),
                 )
                 .order_by(DocumentVersionDB.created_at.desc())
                 .limit(limit)
@@ -986,18 +987,18 @@ class AuditService:
                 .order_by(AuditEventDB.timestamp.desc())
                 .limit(limit)
             )
-            for row in audit_rows:
+            for audit_row in audit_rows:
                 events.append(
                     TimelineEvent(
-                        event_id=row.event_id,
+                        event_id=audit_row.event_id,
                         event_type="audit",
-                        artifact_id=row.event_id,
-                        action=row.action,
-                        timestamp=row.timestamp,
+                        artifact_id=audit_row.event_id,
+                        action=audit_row.action,
+                        timestamp=audit_row.timestamp,
                         actor_id=None,
-                        vertical=row.vertical,
-                        summary=f"{row.action} via {row.agent_id}",
-                        links={"audit": f"/audit?event_id={row.event_id}"},
+                        vertical=audit_row.vertical,
+                        summary=f"{audit_row.action} via {audit_row.agent_id}",
+                        links={"audit": f"/audit?event_id={audit_row.event_id}"},
                     )
                 )
 
@@ -1010,20 +1011,20 @@ class AuditService:
                 .order_by(EvaluationDB.created_at.desc())
                 .limit(limit)
             )
-            for row in eval_rows:
-                score_str = f"{row.score:.0%}" if row.score is not None else "N/A"
+            for eval_row in eval_rows:
+                score_str = f"{eval_row.score:.0%}" if eval_row.score is not None else "N/A"
                 events.append(
                     TimelineEvent(
                         event_id=str(uuid.uuid4()),
                         event_type="evaluation",
-                        artifact_id=row.evaluation_id,
+                        artifact_id=eval_row.evaluation_id,
                         action="evaluation_complete",
-                        timestamp=row.created_at,
+                        timestamp=eval_row.created_at,
                         actor_id="api",
-                        vertical=row.vertical,
+                        vertical=eval_row.vertical,
                         summary=f"Evaluation completed with score {score_str}",
                         links={
-                            "evaluation": f"/customers/{customer_id}/evaluations/{row.evaluation_id}"
+                            "evaluation": f"/customers/{customer_id}/evaluations/{eval_row.evaluation_id}"
                         },
                     )
                 )
@@ -1037,19 +1038,19 @@ class AuditService:
                 .order_by(DocumentVersionDB.created_at.desc())
                 .limit(limit)
             )
-            for row in doc_rows:
+            for doc_row in doc_rows:
                 events.append(
                     TimelineEvent(
                         event_id=str(uuid.uuid4()),
                         event_type="document",
-                        artifact_id=row.version_id,
+                        artifact_id=doc_row.version_id,
                         action="document_generated",
-                        timestamp=row.created_at,
+                        timestamp=doc_row.created_at,
                         actor_id="api",
                         vertical="documents",
-                        summary=f"Generated {row.status} document",
+                        summary=f"Generated {doc_row.status} document",
                         links={
-                            "document": f"/customers/{customer_id}/documents/{row.document_id}"
+                            "document": f"/customers/{customer_id}/documents/{doc_row.document_id}"
                         },
                     )
                 )
