@@ -36,6 +36,9 @@ export default defineConfig({
         timeout: 120000,
         env: __assign(__assign({}, process.env), { 
             // Prefer Vite proxy to the local API (see vite.config.ts).
-            VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '/api' }),
+            VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '/api',
+            VITE_API_PROXY_TARGET: e2eApi
+                ? (process.env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:8000')
+                : process.env.VITE_API_PROXY_TARGET }),
     },
 });

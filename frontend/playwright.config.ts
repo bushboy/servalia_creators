@@ -29,6 +29,13 @@ export default defineConfig({
       ...process.env,
       // Prefer Vite proxy to the local API (see vite.config.ts).
       VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '/api',
+      // CI and host uvicorn listen on 8000; Compose maps the API to 8100.
+      ...(e2eApi
+        ? {
+            VITE_API_PROXY_TARGET:
+              process.env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:8000',
+          }
+        : {}),
     },
   },
 });

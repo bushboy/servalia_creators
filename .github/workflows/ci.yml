@@ -123,7 +123,7 @@ jobs:
           PII_ENCRYPTION_KEY: "WJUOLW0cIk_DxCa7xGy6Gw63wOVU4qZhG9vIzLJNxiQ="
           DATABASE_URL: "sqlite+aiosqlite:///./e2e.db"
         run: |
-          uvicorn thebe_core.api:app --host 127.0.0.1 --port 8000 &
+          nohup uvicorn thebe_core.api:app --host 127.0.0.1 --port 8000 > /tmp/e2e-api.log 2>&1 &
           for i in $(seq 1 30); do
             curl -sf http://127.0.0.1:8000/health && break
             sleep 1
@@ -147,8 +147,11 @@ jobs:
           E2E_API: "1"
           E2E_API_KEY: "test-api-key:test-secret"
           VITE_API_BASE_URL: "/api"
+          VITE_API_PROXY_TARGET: "http://127.0.0.1:8000"
           CI: "true"
-        run: npm run test:e2e
+        run: |
+          curl -sf http://127.0.0.1:8000/health
+          npm run test:e2e
 
   docker:
     runs-on: ubuntu-latest
