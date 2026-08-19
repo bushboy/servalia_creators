@@ -1,0 +1,54 @@
+vertical: creator_publishing
+version: "1.0"
+profile:
+  - key: display_name
+    title: Display name
+    help: How the author should appear on listings and in the publisher field.
+    type: text
+    required: true
+  - key: voice
+    title: Writing voice
+    help: Tone, person, and style the Mind should match.
+    type: textarea
+    required: true
+  - key: audience
+    title: Target reader
+    help: Who the book is for.
+    type: textarea
+    required: true
+  - key: genres
+    title: Genres
+    help: Comma-separated genres.
+    type: text
+    required: true
+  - key: rights
+    title: Rights declaration
+    help: all_rights_owned, licensed_with_permission, or unknown.
+    type: select
+    required: true
+    options:
+      all_rights_owned: I own all rights to this manuscript
+      licensed_with_permission: Licensed with written permission
+      unknown: Unknown / not declared
+  - key: prohibited_topics
+    title: Prohibited topics
+    help: Subjects the Mind must not introduce.
+    type: textarea
+    required: false
+  - key: preferred_terms
+    title: Preferred terms
+    help: Words the Mind should prefer (comma-separated).
+    type: text
+    required: false
+  - key: approval_policy
+    title: Approval policy
+    help: What the author must approve before packaging.
+    type: textarea
+    required: true
+  - key: publisher_name
+    title: Publisher name
+    help: Used only if it is the author or an imprint they control. Never a marketplace name.
+    type: text
+    required: false
+checklist: []
+obligations: {}

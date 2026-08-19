@@ -1,0 +1,41 @@
+vertical: creator_publishing
+rules:
+  - rule_id: CREATOR-RIGHTS-001
+    description: Rights must be declared before an asset can ship.
+    severity: high
+    control_key: rights
+    check: rights_declared
+    recommended_actions:
+      - Declare manuscript rights as owned or licensed. Unknown rights block packaging.
+
+  - rule_id: CREATOR-PRIVACY-001
+    description: Assets must not include undeclared emails, phones, or named third parties.
+    severity: high
+    control_key: privacy
+    check: no_undeclared_pii
+    recommended_actions:
+      - Remove personal contact details or named third parties unless the author declared them.
+
+  - rule_id: CREATOR-CLAIM-001
+    description: Unsupported outcome guarantees need a creator-configured governance review.
+    severity: high
+    control_key: claims
+    check: no_unsupported_guarantee
+    recommended_actions:
+      - Rewrite the claim without guaranteed results or “will double” language.
+
+  - rule_id: CREATOR-VOICE-001
+    description: Assets should stay off prohibited topics and keep preferred terms in view.
+    severity: medium
+    control_key: voice
+    check: voice_aligned
+    recommended_actions:
+      - Drop prohibited topics and use the author’s preferred terms.
+
+  - rule_id: CREATOR-PLATFORM-001
+    description: KDP publisher field and Ingram print ISBN/format must be complete.
+    severity: high
+    control_key: platform_metadata
+    check: platform_metadata_ok
+    recommended_actions:
+      - Set the publisher field to the author or imprint name only, and add an ISBN for print editions.

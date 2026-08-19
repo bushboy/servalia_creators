@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(python)",
+      "Exec(npx tsc)",
+      "Exec(npm run)"
+    ]
+  }
+}
