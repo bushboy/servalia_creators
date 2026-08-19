@@ -51,6 +51,10 @@ def test_seeded_author_and_editions(client):
     assert authors.status_code == 200
     assert any(a["name"] == "Mara Ellison" for a in authors.json())
     author_id = next(a["author_id"] for a in authors.json() if a["name"] == "Mara Ellison")
+    author = next(a for a in authors.json() if a["author_id"] == author_id)
+    assert "careful with claims" in author["context"]["voice"]
+    assert "First-time authors" in author["context"]["audience"]
+    assert author["context"]["rights"] == "all_rights_owned"
 
     books = client.get("/books", params={"author_id": author_id})
     assert books.status_code == 200
@@ -98,6 +102,10 @@ def test_excerpt_to_packages_and_revise(client):
     assert all(row["source_document_id"] for row in assets)
 
     description = next(row for row in assets if row["type"] == "description")
+    assert (
+        "This method guarantees that every new author will double their book sales."
+        in description["content"]
+    )
     evaluated = client.post(f"/assets/{description['id']}/evaluate")
     assert evaluated.status_code == 200
     body = evaluated.json()
@@ -111,22 +119,28 @@ def test_excerpt_to_packages_and_revise(client):
     )
     assert claim["status"] in {"PARTIAL", "FAIL"}
 
-    newsletter = next(row for row in assets if row["type"] == "newsletter")
     rejected = client.post(
-        f"/assets/{newsletter['id']}/reject",
+        f"/assets/{description['id']}/reject",
         json={"note": "Do not use guaranteed results or aggressive sales language."},
     )
     assert rejected.status_code == 200
     revised = client.post(
-        f"/assets/{newsletter['id']}/revise",
+        f"/assets/{description['id']}/revise",
         json={"correction": "Do not use guaranteed results or aggressive sales language."},
     )
     assert revised.status_code == 200
-    assert revised.json()["applied_preference"] is True
-    assert "Applied author preference" in revised.json()["content"]
-    assert "guarantees that every new author will double" not in revised.json()["content"]
+    revised_body = revised.json()
+    assert revised_body["applied_preference"] is True
+    assert revised_body["parent_asset_id"] == description["id"]
+    assert revised_body["version"] == 2
+    assert "Applied author preference" in revised_body["content"]
+    assert "guarantees that every new author will double" not in revised_body["content"]
+    assert (
+        "This method gives first-time authors a practical workflow for preparing a coordinated launch."
+        in revised_body["content"]
+    )
 
-    approved = client.post(f"/assets/{description['id']}/approve")
+    approved = client.post(f"/assets/{revised_body['id']}/approve")
     assert approved.status_code == 200
 
     editions = client.get(f"/books/{book_id}/editions").json()

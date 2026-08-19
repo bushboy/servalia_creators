@@ -35,7 +35,7 @@ export function ManuscriptPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Manuscript</h1>
           <p className="text-muted-foreground">
-            Upload a .txt or .md excerpt. Hash and rights are stored with the source.
+            The source excerpt for generated assets. Rights stay attached to this file.
           </p>
         </div>
 
@@ -69,12 +69,27 @@ export function ManuscriptPage() {
                 {latest.file_name} · v{latest.version}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p>SHA-256: {latest.sha256}</p>
-              <p>Rights: {latest.rights_declaration}</p>
+            <CardContent className="space-y-3 text-sm">
+              <p>
+                <span className="text-muted-foreground">Source: </span>
+                {latest.file_name}
+              </p>
+              <p>
+                <span className="text-muted-foreground">Rights: </span>
+                {latest.rights_declaration}
+              </p>
               <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-md border bg-muted/40 p-3 text-xs">
                 {latest.extracted_text}
               </pre>
+              <details className="rounded-md border bg-muted/20 p-3 text-xs text-muted-foreground">
+                <summary className="cursor-pointer text-sm font-medium text-foreground">
+                  Technical details
+                </summary>
+                <p className="mt-2 break-all">SHA-256: {latest.sha256}</p>
+                <p>Document ID: {latest.id}</p>
+                <p>Book ID: {latest.book_id}</p>
+                <p>Uploaded: {new Date(latest.created_at).toLocaleString()}</p>
+              </details>
             </CardContent>
           </Card>
         ) : (

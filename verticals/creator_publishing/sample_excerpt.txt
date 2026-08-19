@@ -1,9 +1,21 @@
 Chapter 1 — Start where the manuscript is
 
-Most first books stall in the gap between a finished draft and a coordinated launch. The pages are done. The listing copy is not. The newsletter is a blank. Nobody remembers which claims the author already rejected.
+A finished manuscript is not yet a coordinated launch.
+
+The pages may be complete, but the book description still needs work. The newsletter has not been drafted. Social posts, podcast pitches, and video scripts must be created without drifting away from the author’s intent. Important decisions can also get lost in scattered notes: which claims were approved, which were rejected, and which topics should never appear in public copy.
+
+This book is written for first-time authors who have completed a manuscript and need a practical path toward publication. It does not promise a perfect launch or a predictable commercial result. Instead, it focuses on a repeatable process: begin with the manuscript, identify the intended reader, adapt the message for each channel, review every public claim, and prepare the author’s submission materials carefully.
+
+A useful launch starts with the source material. Before writing a description or promotional post, identify the central promise of the book, the problem it addresses, and the reader it is meant to help. Keep the language specific. Avoid claims that suggest every reader will experience the same result.
+
+Each channel needs a different shape of the same message. A book description should name the reader and the problem. A newsletter can walk through the publishing workflow in a more personal voice. A social post should be specific and short. A podcast pitch should explain why this conversation helps first-time authors. A video script should open with the unfinished-launch problem, not with a promise the author cannot keep.
 
 This method guarantees that every new author will double their book sales.
 
-That sentence is the trap. It is easy to generate and expensive to stand behind. A publishing Mind should reuse the manuscript’s voice, not invent outcomes the author cannot prove.
+That sentence is the trap. It sounds persuasive, but it promises an outcome the author may not be able to prove. A publishing Mind should strengthen the manuscript’s message—not manufacture certainty, exaggerate results, or promise outcomes beyond the author’s control.
 
-Work from the excerpt. Name the reader. Keep the rights declaration in view. Let the author approve every public line before a KDP or IngramSpark package is built.
+The safer approach is to treat the manuscript as the source of truth. Work from the excerpt. Preserve the author’s voice, preferred terminology, and intended audience. When a sentence contains a factual, medical, financial, or commercial claim, route it for review instead of silently presenting it as established fact.
+
+The author remains the decision-maker. Public-facing copy should not provide medical advice, guarantee income, or imply a predictable sales result. The author owns all rights to this manuscript and permits it to be adapted into descriptive, educational, and promotional materials. Every public-facing line must be reviewed before a KDP or IngramSpark submission package is prepared.
+
+A coordinated launch is not about saying more. It is about carrying the right message from the manuscript into each channel while keeping the author’s voice, rights, and decisions visible.

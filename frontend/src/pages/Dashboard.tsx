@@ -82,6 +82,14 @@ export function Dashboard() {
               {String(author.context.audience || 'Not set')}
             </p>
             <p>
+              <span className="text-muted-foreground">Rights: </span>
+              {String(author.context.rights || 'Not set')}
+            </p>
+            <p>
+              <span className="text-muted-foreground">Avoid: </span>
+              {String(author.context.prohibited_topics || 'Not set')}
+            </p>
+            <p>
               <span className="text-muted-foreground">Mind: </span>
               {author.mind?.mind_id || 'Not bound'} ({author.mind?.status})
               {author.mind?.configured ? '' : ' · credentials not configured on the API'}

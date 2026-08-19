@@ -19,14 +19,14 @@ SEED_MIND_ROW_ID = "seed-mind-mara"
 
 SEED_CONTEXT = {
     "display_name": "Mara Ellison",
-    "biography": "Independent author writing for first-time nonfiction writers.",
-    "voice": "warm, practical, first person",
-    "audience": "first-time nonfiction authors preparing a KDP and IngramSpark launch",
-    "genres": "business, self-help",
+    "biography": "First-time-author advocate writing a practical publishing workflow from manuscript to launch.",
+    "voice": "Practical, encouraging, specific, and careful with claims",
+    "audience": "First-time authors preparing a completed manuscript for publication",
+    "genres": "publishing, nonfiction",
     "rights": "all_rights_owned",
-    "prohibited_topics": "medical advice, guaranteed income",
-    "preferred_terms": "reader, independent author",
-    "approval_policy": "Author approves every public asset before packaging.",
+    "prohibited_topics": "guaranteed income, guaranteed sales",
+    "preferred_terms": "manuscript, reader, publishing workflow, author approval, source material",
+    "approval_policy": "Review all public-facing claims before publication",
     "publisher_name": "Ellison Press",
 }
 
@@ -90,9 +90,9 @@ async def seed_creatortrust(
                     author_id=SEED_AUTHOR_ID,
                     working_title="Manuscript to Launch",
                     final_title="Manuscript to Launch",
-                    subtitle="A governed path from excerpt to KDP and IngramSpark",
+                    subtitle="Practical publishing workflow for first-time authors",
                     series_name=None,
-                    description="A practical book for independent authors who want a Mind that remembers their voice.",
+                    description="A practical publishing workflow for first-time authors preparing a completed manuscript for publication.",
                     status="active",
                     publication_strategy="kdp_and_ingramspark",
                 )

@@ -119,7 +119,7 @@ Internal names that stay: Python package `thebe_core`, SQL table `customers`. Pr
 | Publishing packages | KDP and IngramSpark ZIP adapters; manual status; Ingram proof-review as status |
 | Campaign board | Pre-launch, launch week, post-launch; tasks reference approved assets |
 | Audit | Generate, evaluate, decide, package, feedback applied |
-| Demo seed | Mara Ellison, book *Manuscript to Launch*, paperback + ebook, risky excerpt; restore from Settings → System without dropping tenants |
+| Demo seed | Mara Ellison, book *Manuscript to Launch*, paperback + ebook, chapter excerpt with one seeded sales guarantee; restore from Settings → System without dropping tenants |
 
 ### Screens
 
@@ -147,6 +147,7 @@ With `SEED_TEST_TENANT=1`:
 - Book: **Manuscript to Launch**
 - Editions: paperback and ebook
 - Excerpt includes: “This method guarantees that every new author will double their book sales.”
+- Voice: practical, encouraging, specific, and careful with claims
 - Sign-in: `test-api-key:test-secret` when OIDC env is omitted
 - Restore: Settings → System → Restore demo seed (admin), or `POST /api/admin/demo-reset`
 

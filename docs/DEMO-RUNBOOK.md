@@ -69,11 +69,11 @@ Reset before every recording. Capture the audit trail after a dress rehearsal if
 Follow `docs/DEMO-VIDEO.md` for what to say. This is the operator path.
 
 1. **Home.** Confirm Mara, voice, reader, *Manuscript to Launch*. Send: *What voice and claims should we avoid for this launch?* Wait — replies often take one to two minutes. Do not refresh. **Do not continue if chat is a 503 or a fake reply.**
-2. Optional flash: **Edit profile** — voice, rights `all_rights_owned`, prohibited topics include guaranteed income. Do not edit on camera unless you mean to.
+2. Optional flash: **Edit profile** — voice, rights `all_rights_owned`, prohibited topics include guaranteed income and guaranteed sales. Do not edit on camera unless you mean to.
 3. Skip a Library tour. Open the book only if you need editions. ISBN and price live on the edition.
-4. **Manuscript.** Seeded `sample_excerpt.txt`. Confirm the guarantee sentence. Re-upload only if missing (`.txt` / `.md`).
-5. **Assets → Generate assets.** Wait for five cards. If the Mind does not return JSON, local composition still fills the five types so the loop can continue. Point at source references on one card.
-6. **Governance → Run review** on description or newsletter. Expect Review or Block on the guarantee. Correction: *Do not use guaranteed results or aggressive sales language.* **Reject**, then **Revise**. Confirm **Applied author preference**. **Approve** a description that is not Block — packages are gated on this.
+4. **Manuscript.** Seeded `sample_excerpt.txt`. Confirm rights, then scroll to the guarantee sentence. Hash lives under **Technical details**. Re-upload only if missing (`.txt` / `.md`).
+5. **Assets → Generate assets.** Wait for five cards. If the Mind does not return JSON, local composition still fills the five types so the loop can continue. Point at source references and rights on one card. The **book description** is the asset that contains the guarantee.
+6. **Governance → Run review** on the **book description**. Expect Review or Block on the guarantee. Correction: *Do not use guaranteed results or aggressive sales language.* **Reject**, then **Revise**. Confirm **Applied author preference** and version **v2**. **Approve** the corrected description — packages are gated on this.
 7. **Publishing.** Paperback: download both ZIPs. Unzip: `metadata.json`, `checklist.md`, `validation-report.json`, `SUBMIT.md`. **Proof in review** is status only.
 8. **Launch → Create launch plan.**
 9. **Audit.** Filter `seed-author-mara`. Confirm generate, evaluate, reject, revise, package.

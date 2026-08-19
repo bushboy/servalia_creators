@@ -30,12 +30,29 @@ ASSET_SPECS: list[dict[str, str]] = [
     },
 ]
 
+RISKY_CLAIM = (
+    "This method guarantees that every new author will double their book sales."
+)
+REVISED_CLAIM = (
+    "This method gives first-time authors a practical workflow for preparing a coordinated launch."
+)
+
 
 def _quote(excerpt: str, max_chars: int = 280) -> str:
     text = " ".join(excerpt.split())
     if len(text) <= max_chars:
         return text
     return text[: max_chars - 1].rsplit(" ", 1)[0] + "…"
+
+
+def _claim_line(excerpt: str, correction: str | None) -> str | None:
+    if RISKY_CLAIM not in excerpt:
+        return None
+    if correction:
+        lowered = correction.lower()
+        if "guarantee" in lowered or "aggressive" in lowered:
+            return REVISED_CLAIM
+    return RISKY_CLAIM
 
 
 def compose_assets(
@@ -48,52 +65,60 @@ def compose_assets(
     preferred_terms: str,
     correction: str | None = None,
     asset_types: list[str] | None = None,
+    rights: str | None = None,
 ) -> list[dict[str, Any]]:
     """Deterministic structured assets when the Minds API is not configured.
 
     Used for tests and local loops. Chat still requires a real Mind.
+    The book description carries the seeded commercial claim so governance
+    review stays visible; other channels reuse the opening manuscript lines.
     """
     quote = _quote(excerpt)
-    terms = preferred_terms or "reader"
+    claim = _claim_line(excerpt, correction)
+    terms = preferred_terms or "manuscript, reader, publishing workflow"
+    rights_status = rights or "unknown"
     preference_note = ""
-    body_excerpt = excerpt
     if correction:
-        preference_note = f"Applied author preference: {correction.strip()}\n\n"
-        lowered = correction.lower()
-        if "guarantee" in lowered or "aggressive" in lowered:
-            body_excerpt = excerpt.replace(
-                "This method guarantees that every new author will double their book sales.",
-                "This method helps a reader move from manuscript to a coordinated launch.",
-            )
+        preference_note = "Applied author preference.\n\n"
 
+    claim_sentence = f" {claim}" if claim else ""
+    description_body = (
+        f"{title} by {author_name} is a practical publishing workflow for "
+        f"{audience or 'first-time authors'}. "
+        f"Written in a {voice or 'practical'} voice, it treats the manuscript as the "
+        f"source material and keeps author approval in view.{claim_sentence} "
+        f"Start with the reader. Adapt the message for each channel. "
+        f"Review every public-facing claim before a submission package is prepared."
+    )
     templates = {
-        "description": (
-            f"{title} by {author_name}. Written in a {voice or 'clear'} voice for {audience or 'readers'}. "
-            f"{body_excerpt.strip()}\n\n"
-            f"For the independent author and every reader who wants a governed publishing path."
-        ),
+        "description": f"{preference_note}{description_body}",
         "newsletter": (
-            f"Subject: {title} is ready for readers\n\n"
+            f"Subject: {title} is ready for your publishing workflow\n\n"
             f"Hello,\n\n{preference_note}"
-            f"I wrote {title} for {audience or 'readers'} who are stuck between a finished draft and a launch. "
-            f"Here is a line from the manuscript:\n\n“{quote}”\n\n"
-            f"If you are an independent author, reply and tell me where you are in the process."
+            f"I wrote {title} for {audience or 'readers'} who have a finished "
+            f"manuscript and still need a coordinated launch. "
+            f"Here is a line from the source material:\n\n“{quote}”\n\n"
+            f"If you are preparing author approval for public copy, reply and tell me "
+            f"where you are in the process."
         ),
         "social_post": (
             f"{preference_note}"
-            f"{title} — a note for the independent author.\n\n“{quote}”\n\n"
-            f"Voice: {voice or 'practical'}. Built for the reader, not a marketplace algorithm."
+            f"{title} — a note for the first-time author.\n\n“{quote}”\n\n"
+            f"Voice: {voice or 'practical'}. Built from the manuscript for the reader, "
+            f"not a marketplace algorithm."
         ),
         "podcast_pitch": (
-            f"Pitch: {author_name} on turning one manuscript into a governed launch.\n\n"
+            f"Pitch: {author_name} on turning one manuscript into a publishing workflow.\n\n"
             f"{preference_note}"
-            f"Suggested topic: how {audience or 'authors'} keep voice and rights while preparing KDP and IngramSpark. "
+            f"Suggested topic: how {audience or 'authors'} keep voice, rights, and "
+            f"author approval while preparing KDP and IngramSpark. "
             f"Excerpt: “{quote}”"
         ),
         "video_script": (
-            f"[HOOK] {title} does not promise guaranteed sales. It gives the reader a path.\n"
+            f"{preference_note}"
+            f"[HOOK] {title} starts where the manuscript is.\n"
             f"[STORY] {quote}\n"
-            f"[CTA] Follow for the launch plan. {terms}."
+            f"[CTA] Follow for a practical publishing workflow. {terms}."
         ),
     }
 
@@ -102,26 +127,24 @@ def compose_assets(
     for spec in ASSET_SPECS:
         if spec["type"] not in wanted:
             continue
-        content = preference_note + templates[spec["type"]] if spec["type"] not in {
-            "newsletter",
-            "social_post",
-            "podcast_pitch",
-        } else templates[spec["type"]]
+        source_quote = claim if spec["type"] == "description" and claim else quote
         assets.append(
             {
                 "type": spec["type"],
                 "platform": spec["platform"],
-                "content": content.strip(),
+                "content": templates[spec["type"]].strip(),
                 "source_references": [
                     {
                         "kind": "excerpt",
-                        "quote": quote,
+                        "quote": source_quote,
                         "note": f"Drawn from the uploaded manuscript for the {spec['label']}.",
                     }
                 ],
                 "assumptions": [
                     f"Audience is {audience or 'the stated reader'}.",
                     f"Voice is {voice or 'the author’s declared voice'}.",
+                    f"Rights declared as {rights_status}.",
+                    "Source material is the uploaded manuscript excerpt.",
                 ],
                 "call_to_action": "Approve this asset before it is packaged.",
                 "risk_notes": [

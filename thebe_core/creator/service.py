@@ -92,7 +92,9 @@ def document_response(row: SourceDocumentDB) -> DocumentResponse:
 
 
 def asset_response(row: AssetDB) -> AssetResponse:
-    return AssetResponse.model_validate(row.model_dump())
+    payload = row.model_dump()
+    payload["version"] = 2 if row.parent_asset_id else 1
+    return AssetResponse.model_validate(payload)
 
 
 class CreatorService:
@@ -551,6 +553,10 @@ class CreatorService:
                 "name": author.name,
                 "voice": context.get("voice"),
                 "audience": context.get("audience"),
+                "preferred_terms": context.get("preferred_terms"),
+                "prohibited_topics": context.get("prohibited_topics"),
+                "rights": context.get("rights"),
+                "approval_policy": context.get("approval_policy"),
             },
             "excerpt": document.extracted_text,
             "source_document_id": document.id,
@@ -576,6 +582,7 @@ class CreatorService:
             preferred_terms=str(context.get("preferred_terms") or "reader"),
             correction=correction,
             asset_types=asset_types,
+            rights=str(context.get("rights") or "unknown"),
         )
 
     def _map_governance(self, result: EvaluationResult, context: EntityContext) -> EvaluationResult:
@@ -765,7 +772,12 @@ class CreatorService:
             author_id=book.author_id,
             action="asset_revised",
             input_snapshot={"parent_asset_id": asset.id, "correction": correction},
-            output_snapshot={"asset_id": created[0].id, "type": created[0].type},
+            output_snapshot={
+                "asset_id": created[0].id,
+                "type": created[0].type,
+                "applied_preference": True,
+                "version": 2 if created[0].parent_asset_id else 1,
+            },
         )
         return created[0]
 

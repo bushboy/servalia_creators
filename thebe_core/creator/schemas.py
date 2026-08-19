@@ -164,6 +164,7 @@ class AssetResponse(BaseModel):
     author_correction: str | None
     applied_preference: bool
     evaluation: dict[str, Any] | None
+    version: int = 1
     created_at: datetime
 
 

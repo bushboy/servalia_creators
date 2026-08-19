@@ -5,6 +5,7 @@ import json
 import re
 import time
 from html.parser import HTMLParser
+from typing import Any
 
 import httpx
 
@@ -513,13 +514,22 @@ def _assets_prompt(request: dict[str, Any]) -> str:
         "(array of {kind, quote, note}), assumptions (string array), "
         "call_to_action (string), risk_notes (string array).\n"
         f"Required types in order: {', '.join(types)}.\n"
-        "Do not invent guaranteed sales, medical advice, or legal clearance. "
-        "Quote the excerpt in source_references.\n"
+        "Copy commercial claims that already appear in the excerpt into the book "
+        "description so they can be reviewed. Do not invent additional guaranteed "
+        "results, medical advice, or legal clearance. Unless an author correction is "
+        "provided, do not strip, soften, or disclaim claims that are already in the "
+        "manuscript. For newsletter, social, podcast, and video, reuse the problem, "
+        "intended reader, and publishing workflow — not a sales guarantee.\n"
+        "Quote the excerpt in source_references. Use the author's preferred terms.\n"
         f"Book title: {book.get('title')}\n"
         f"Subtitle: {book.get('subtitle')}\n"
         f"Author: {author.get('name')}\n"
         f"Voice: {author.get('voice')}\n"
         f"Audience: {author.get('audience')}\n"
+        f"Preferred terms: {author.get('preferred_terms')}\n"
+        f"Prohibited topics: {author.get('prohibited_topics')}\n"
+        f"Rights: {author.get('rights')}\n"
+        f"Approval policy: {author.get('approval_policy')}\n"
         f"{correction_block}"
         "Excerpt:\n"
         f"{request.get('excerpt') or ''}\n"

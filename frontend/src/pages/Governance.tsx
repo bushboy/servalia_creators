@@ -55,11 +55,22 @@ export function GovernancePage() {
             <Card key={asset.id}>
               <CardHeader className="flex flex-row items-center justify-between gap-2">
                 <CardTitle>{LABELS[asset.type] || asset.type}</CardTitle>
-                <Badge variant="outline">{asset.governance_status}</Badge>
+                <div className="flex flex-wrap justify-end gap-2">
+                  {asset.applied_preference ? (
+                    <Badge variant="secondary">Applied author preference</Badge>
+                  ) : null}
+                  <Badge variant="outline">v{asset.version ?? 1}</Badge>
+                  <Badge variant="outline">{asset.governance_status}</Badge>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {asset.applied_preference ? (
-                  <p className="text-sm font-medium">Applied author preference</p>
+                <pre className="max-h-40 overflow-auto whitespace-pre-wrap rounded-md border bg-muted/40 p-3 text-xs">
+                  {asset.content}
+                </pre>
+                {asset.author_correction ? (
+                  <p className="text-sm text-muted-foreground">
+                    Correction: {asset.author_correction}
+                  </p>
                 ) : null}
                 {asset.evaluation ? (
                   <EvaluationResultView result={asset.evaluation} />

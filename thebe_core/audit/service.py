@@ -28,7 +28,6 @@ from thebe_core.models import (
     Customer,
     CustomerWorkspace,
     DocumentVersion,
-    EvaluationResult,
     TimelineEvent,
 )
 

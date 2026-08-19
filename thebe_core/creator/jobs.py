@@ -4,7 +4,10 @@ from typing import Any
 
 from thebe_core.audit.service import AuditService
 from thebe_core.audit.store import JobDB
-from thebe_core.creator.publishing import IngramSparkDestinationAdapter, KdpDestinationAdapter
+from thebe_core.creator.publishing import (
+    IngramSparkDestinationAdapter,
+    KdpDestinationAdapter,
+)
 from thebe_core.creator.service import CreatorService
 from thebe_core.models import AuditEvent
 from thebe_core.verticals.pack import VerticalPack

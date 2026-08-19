@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAssets, useGenerateAssets } from '@/hooks/useCreator';
+import { useAssets, useDocuments, useGenerateAssets } from '@/hooks/useCreator';
 import { Sparkles } from 'lucide-react';
 
 const LABELS: Record<string, string> = {
@@ -20,7 +20,9 @@ const LABELS: Record<string, string> = {
 export function AssetsPage() {
   const { bookId = '' } = useParams();
   const assets = useAssets(bookId);
+  const documents = useDocuments(bookId);
   const generate = useGenerateAssets(bookId);
+  const source = documents.data?.[0];
 
   if (assets.isLoading) return <Skeleton className="h-48 w-full" />;
   if (assets.error) return <ApiErrorAlert error={assets.error} />;
@@ -34,6 +36,11 @@ export function AssetsPage() {
           <p className="text-muted-foreground">
             Five structured outputs with source references and assumptions.
           </p>
+          {source ? (
+            <p className="mt-1 text-sm text-muted-foreground">
+              Source: {source.file_name} · Rights: {source.rights_declaration}
+            </p>
+          ) : null}
         </div>
         <Button onClick={() => generate.mutate()} disabled={generate.isPending}>
           {generate.isPending ? 'Generating… this can take a couple of minutes' : 'Generate assets'}
@@ -46,10 +53,12 @@ export function AssetsPage() {
             <Card key={asset.id}>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{LABELS[asset.type] || asset.type}</CardTitle>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap justify-end gap-2">
                   {asset.applied_preference ? (
                     <Badge variant="secondary">Applied author preference</Badge>
                   ) : null}
+                  <Badge variant="outline">v{asset.version ?? 1}</Badge>
+                  <Badge variant="outline">{asset.governance_status}</Badge>
                   <Badge variant="outline">{asset.platform}</Badge>
                 </div>
               </CardHeader>
@@ -66,6 +75,13 @@ export function AssetsPage() {
                     .map((ref) => String(ref.quote || ref.note || ''))
                     .join(' ')}
                 </p>
+                <details className="text-xs text-muted-foreground">
+                  <summary className="cursor-pointer">Asset details</summary>
+                  <p className="mt-1 font-mono break-all">ID: {asset.id}</p>
+                  {asset.parent_asset_id ? (
+                    <p className="font-mono break-all">Previous version: {asset.parent_asset_id}</p>
+                  ) : null}
+                </details>
               </CardContent>
             </Card>
           ))}

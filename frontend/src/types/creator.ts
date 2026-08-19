@@ -87,6 +87,7 @@ export interface Asset {
   author_correction: string | null;
   applied_preference: boolean;
   evaluation: EvaluationResult | null;
+  version?: number;
   created_at: string;
 }
 

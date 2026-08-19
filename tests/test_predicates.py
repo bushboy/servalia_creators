@@ -4,7 +4,6 @@ from thebe_core.creator.predicates import creator_predicates
 from thebe_core.models import EntityContext, Rule, RulePack
 from thebe_core.policy.engine import PolicyEngine
 
-
 GUARANTEE = "This method guarantees that every new author will double their book sales."
 
 

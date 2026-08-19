@@ -2,12 +2,24 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+)
 from fastapi.responses import FileResponse
 
 from thebe_core.auth.dependencies import RoleRequired
 from thebe_core.auth.models import TenantContext
-from thebe_core.creator.publishing import IngramSparkDestinationAdapter, KdpDestinationAdapter
+from thebe_core.creator.publishing import (
+    IngramSparkDestinationAdapter,
+    KdpDestinationAdapter,
+)
 from thebe_core.creator.schemas import (
     AssetDecisionRequest,
     AssetResponse,
