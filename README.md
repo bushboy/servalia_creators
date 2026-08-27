@@ -1,119 +1,141 @@
 # CreatorTrust by Servalia
 
-A publishing and marketing Mind for authors. CreatorTrust turns one manuscript into a governed publishing and marketing system: platform-ready packages for Amazon KDP and IngramSpark, campaign assets across email, social, podcast, and video, and a persistent Mind that remembers the author’s voice, rights, and approvals.
+A publishing Mind for authors: one manuscript excerpt becomes governed marketing assets, KDP / IngramSpark packages, a launch plan, and an audit trail. The author’s Mind is called only from the API.
 
-**Hackathon track:** Content Repurposing Across Platforms.
-
-**Pitch:** CreatorTrust is a persistent publishing Mind that turns one manuscript into governed publishing and marketing assets across KDP, IngramSpark, email, social, podcast, and reader channels, without taking control away from the author.
-
-This repository is a Python FastAPI + React app on Servalia / Thebe Core. It is **not** an ASP.NET rewrite. Fintech RiskOps (sometimes called FinOps) is out of this entry; judges should see only CreatorTrust.
-
-## What it does
+Hackathon track: **Content Repurposing Across Platforms**. Python FastAPI + React. Fintech RiskOps is not part of this app.
 
 ```
-Create author profile
-  → upload manuscript excerpt
-  → generate publishing and marketing assets
-  → validate against author rules
-  → approve or reject
-  → regenerate using feedback
-  → produce KDP / IngramSpark packages
-  → display launch plan and audit trail
+Author profile → excerpt → generate assets → governance → approve / revise
+  → KDP / IngramSpark ZIP → launch plan → audit
 ```
 
-- **Persistent Mind** — one Minds agent per author, called only from the API.
-- **Governed repurposing** — book description, newsletter, social post, podcast pitch, and video script, each with source references.
-- **Author-configured review** — voice, rights, privacy, unsupported claims, and platform metadata. Results are Allow / Review / Block, not legal clearance.
-- **Assisted publishing** — ZIP packages and status tracking. The author remains the operator. No live autopublish.
-- **Audit trail** — who generated, evaluated, approved, or revised each asset.
+## Setup (recommended): Docker Compose
 
-## Stack
+You need **Docker Desktop** (or Docker Engine + Compose v2).
 
-| Layer | This repo |
+### 1. Environment file
+
+```powershell
+copy .env.example .env
+```
+
+On macOS/Linux: `cp .env.example .env`
+
+Edit `.env` and set at least:
+
+| Variable | Required | Notes |
+|---|---|---|
+| `PII_ENCRYPTION_KEY` | **Yes** | API container exits without it. Generate: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Yes | Defaults in `.env.example` work (`thebe` / `thebe` / `thebe`) |
+| `MINDS_API_KEY`, `MINDS_MIND_ID`, `MINDS_MIND_EMAIL` | For live Mind chat | Server-side only. Never `VITE_*`. Omit them to still run generate-assets via local composition |
+
+Leave `DATABASE_URL` pointing at localhost if you also run the API on the host. Compose **overrides** it to the `postgres` service.
+
+### 2. Start the stack
+
+```powershell
+docker compose up --build
+```
+
+Wait until `creatortrust-api` is healthy (`curl http://localhost:8100/health`).
+
+| What | URL |
 |---|---|
-| Frontend | React, TypeScript, Vite, Tailwind, shadcn |
-| Backend | Python 3.13, FastAPI, SQLModel |
-| Database | PostgreSQL (SQLite in some tests) |
-| Jobs | In-process `JobService` |
-| Auth | Keycloak OIDC + API keys |
-| Governance | Servalia / Thebe policy engine + `creator_publishing` pack |
-| Agent | Minds Builder API (server-side) |
-| Deploy | Docker Compose |
+| App | http://localhost:3080 |
+| API | http://localhost:8100 |
+| API docs | http://localhost:8100/docs |
+| Keycloak | http://localhost:8180 |
+| Postgres (on the host) | `localhost:5433` |
 
-## Quickstart
+Ports are offset (`3080` / `8100` / `8180` / `5433`) so this can sit beside another Thebe stack.
 
-### Backend
+### 3. Sign in
 
-```bash
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-source .venv/bin/activate
-pip install -e ".[dev]"
-export SEED_TEST_TENANT=1
-export PII_ENCRYPTION_KEY=WJUOLW0cIk_DxCa7xGy6Gw63wOVU4qZhG9vIzLJNxiQ=
-# Minds (required for the live Mind demo; names may match the Builder API docs)
-# export MINDS_API_BASE_URL=...
-# export MINDS_API_KEY=...
-uvicorn thebe_core.api:app --reload
+| Method | URL | Credentials |
+|---|---|---|
+| OIDC (Compose UI) | http://localhost:3080 | Keycloak user `test` / `test` (realm `servalia`) |
+| API key (scripts / Vite) | — | `test-api-key:test-secret` |
+| Keycloak admin | http://localhost:8180 | `admin` / `admin` |
+
+Seeded author: **Mara Ellison**, book *Manuscript to Launch*.
+
+### 4. Reset the demo
+
+Does not drop Postgres, Keycloak, or the tenant. Restores Mara, the book, editions, and excerpt; removes generated assets and campaigns.
+
+```powershell
+python scripts/reset_demo.py
 ```
 
-Seeded API key: `test-api-key:test-secret`
+Or Settings → System → **Restore demo seed** (signed in as admin).
 
-```bash
-pytest tests -q
+---
+
+## Setup (optional): API and UI on the host
+
+Use this when you want reload on save. Postgres/Keycloak can still come from Compose (`docker compose up postgres keycloak`).
+
+### API
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+```
+
+macOS/Linux: `source .venv/bin/activate`
+
+Set:
+
+```powershell
+$env:SEED_TEST_TENANT = "1"
+$env:PII_ENCRYPTION_KEY = "<fernet key>"
+$env:DATABASE_URL = "postgresql+asyncpg://thebe:thebe@localhost:5433/thebe"
+```
+
+If you skip Compose Postgres, omit `DATABASE_URL` to use SQLite (`thebe.db`).
+
+```powershell
+uvicorn thebe_core.api:app --reload --port 8000
 ```
 
 ### Frontend
 
-```bash
+```powershell
 cd frontend
 npm install
-# Leave VITE_OIDC_* unset for API-key login (see .env.example)
 npm run dev
 ```
 
-Open `http://localhost:5173`, sign in with the seeded key, then follow **Home → Library → book → manuscript → assets → governance → publishing**.
+Open http://localhost:5173. Leave `VITE_OIDC_*` unset to sign in with `test-api-key:test-secret`. Vite proxies `/api` to **8100** by default; when the API is on 8000:
 
-```bash
-npx tsc -b
-npm run test
-# Full E2E (API must be running with SEED_TEST_TENANT=1):
-E2E_API=1 npm run test:e2e
+```powershell
+$env:VITE_API_PROXY_TARGET = "http://localhost:8000"
+npm run dev
 ```
 
-### Docker Compose
+---
 
-Host ports are offset so this stack can run beside another Servalia/Thebe compose file:
+## Tests
 
-| Service | Container | Host port |
-|---|---|---|
-| Frontend | `creatortrust-frontend` | [http://localhost:3080](http://localhost:3080) |
-| API | `creatortrust-api` | [http://localhost:8100](http://localhost:8100) |
-| Keycloak | `creatortrust-keycloak` | [http://localhost:8180](http://localhost:8180) |
-| Postgres | `creatortrust-postgres` | `localhost:5433` |
-
-```bash
-cp .env.example .env
-docker compose up --build
+```powershell
+pytest tests -q
+cd frontend
+npm test
 ```
 
-Frontend image injects OIDC/API settings at start via `runtime-config.js`
-(`OIDC_AUTHORITY`, `OIDC_CLIENT_ID`, `OIDC_REDIRECT_URI`, `API_BASE_URL`).
-Keep Minds credentials on the API service only.
+E2E needs a seeded API:
+
+```powershell
+$env:E2E_API = "1"
+npm run test:e2e
+```
+
 
 ## Docs
 
 | Doc | Purpose |
 |---|---|
-| `docs/PRODUCT.md` | What is built now, what is next, architecture, API, and claims |
-| `docs/CREATORTRUST_CHECKLIST.md` | Remaining hackathon tasks only (live Mind, deploy, video, pack) |
-| `docs/DEMO-VIDEO.md` | Three-minute recording script (story and narration) |
-| `docs/DEMO-RUNBOOK.md` | Operator setup, seed reset, troubleshooting |
-| `docs/EVIDENCE-CHECKLIST.md` | Screenshots and files for the submission pack |
-| `docs/PITCH.md` | One-page pitch, pricing, roadmap |
+| [`docs/PRODUCT.md`](docs/PRODUCT.md) | What is built, architecture, API |
 
-Local Keycloak (Compose): realm `servalia`, client `creatortrust-frontend`, host port 8180. Omit `VITE_OIDC_*` to use API-key login. Public OIDC hygiene is on the remaining-work checklist.
 
-## Out of scope (this sprint)
-
-Live KDP or IngramSpark publishing, PDF/DOCX extraction, email/social posting, billing, multiple Minds, and any remaining fintech / RiskOps product surface.

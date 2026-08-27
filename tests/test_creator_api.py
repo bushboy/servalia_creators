@@ -33,17 +33,26 @@ def client(tmp_path):
 
 
 def _wait_job(client: TestClient, job_id: str, timeout: float = 15.0) -> dict:
+    return _wait_job_until(client, job_id, {"completed"}, timeout=timeout)
+
+
+def _wait_job_until(
+    client: TestClient,
+    job_id: str,
+    statuses: set[str],
+    timeout: float = 15.0,
+) -> dict:
     deadline = time.time() + timeout
     while time.time() < deadline:
         response = client.get(f"/jobs/{job_id}")
         assert response.status_code == 200
         job = response.json()
-        if job["status"] == "completed":
+        if job["status"] in statuses:
             return job
-        if job["status"] == "failed":
+        if job["status"] == "failed" and "failed" not in statuses:
             raise AssertionError(job.get("last_error") or job)
         time.sleep(0.1)
-    raise TimeoutError(f"job {job_id} did not complete")
+    raise TimeoutError(f"job {job_id} did not reach {statuses}")
 
 
 def test_seeded_author_and_editions(client):
@@ -78,6 +87,24 @@ def test_mind_message_requires_credentials(client):
         json={"message": "What is my voice?"},
     )
     assert response.status_code == 503
+
+
+def test_unknown_job_does_not_stall_asset_generation(client):
+    bad = client.post(
+        "/jobs",
+        json={"job_type": "not_a_real_type", "payload": {}, "max_retries": 0},
+    )
+    assert bad.status_code == 201
+    failed = _wait_job_until(client, bad.json()["job_id"], {"failed"})
+    assert failed["status"] == "failed"
+
+    book_id = client.get("/books").json()[0]["id"]
+    generated = client.post(f"/books/{book_id}/generate-assets", json={})
+    assert generated.status_code == 200
+    _wait_job(client, generated.json()["job_id"])
+    assets = client.get(f"/books/{book_id}/assets")
+    assert assets.status_code == 200
+    assert len(assets.json()) == 5
 
 
 def test_excerpt_to_packages_and_revise(client):

@@ -50,8 +50,7 @@
           "value": "test",
           "temporary": false
         }
-      ],
-      "realmRoles": ["default-roles-servalia"]
+      ]
     }
   ]
 }

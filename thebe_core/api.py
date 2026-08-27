@@ -400,7 +400,18 @@ async def lifespan(app: FastAPI):
     app.state.packs = packs
     app.state.job_service = JobService(audit, packs)
     app.state.creator = CreatorService(audit, packs)
-    worker_task = asyncio.create_task(app.state.job_service.run())
+    worker_task = asyncio.create_task(
+        app.state.job_service.run(), name="creatortrust-job-worker"
+    )
+
+    def _on_worker_done(task: asyncio.Task) -> None:
+        if task.cancelled():
+            return
+        exc = task.exception()
+        if exc is not None:
+            logger.error("Job worker stopped unexpectedly: %s", exc, exc_info=exc)
+
+    worker_task.add_done_callback(_on_worker_done)
 
     if os.environ.get("SEED_TEST_TENANT"):
         tenant = await auth.get_tenant("test-tenant")

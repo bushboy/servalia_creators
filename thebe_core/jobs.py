@@ -105,43 +105,60 @@ class JobService:
         logger.info("Job %s queued for retry", job_id)
         return row
 
-    async def _next_pending(self) -> JobDB | None:
+    async def _next_pending_id(self) -> str | None:
         async with AsyncSession(self.audit.engine) as session:
             stmt = (
-                select(JobDB)
+                select(JobDB.job_id)
                 .where(JobDB.status == "pending")
                 .order_by(JobDB.created_at.asc())
                 .limit(1)
             )
             result = await session.execute(stmt)
-            return result.scalars().first()
+            return result.scalar_one_or_none()
 
     async def run(self) -> None:
         """Worker loop that processes pending jobs."""
+        logger.info("Job worker started")
         while not self._shutdown:
-            job = await self._next_pending()
-            if job is None:
-                self._event.clear()
-                try:
-                    await asyncio.wait_for(self._event.wait(), timeout=5.0)
-                except asyncio.TimeoutError:
-                    pass
-                continue
-            await self._process_job(job)
+            try:
+                job_id = await self._next_pending_id()
+                if job_id is None:
+                    self._event.clear()
+                    try:
+                        await asyncio.wait_for(self._event.wait(), timeout=5.0)
+                    except asyncio.TimeoutError:
+                        pass
+                    continue
+                await self._process_job(job_id)
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                logger.exception("Job worker iteration failed; retrying")
+                await asyncio.sleep(2.0)
 
     def stop(self) -> None:
         self._shutdown = True
         self._event.set()
 
-    async def _process_job(self, job: JobDB) -> None:
+    async def _process_job(self, job_id: str) -> None:
         async with AsyncSession(self.audit.engine) as session:
-            row = await session.get(JobDB, job.job_id)
+            row = await session.get(JobDB, job_id)
             if row is None or row.status != "pending":
                 return
             row.status = "running"
             row.started_at = datetime.now(timezone.utc)
             row.updated_at = row.started_at
+            job_type = row.job_type
+            payload = dict(row.payload or {})
+            tenant_id = row.tenant_id
             await session.commit()
+
+        job = JobDB(
+            job_id=job_id,
+            tenant_id=tenant_id,
+            job_type=job_type,
+            payload=payload,
+        )
 
         try:
             result = await self._execute(job)

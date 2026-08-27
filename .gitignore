@@ -16,6 +16,9 @@ data/uploads/**
 data/packages/**
 !data/packages/.gitkeep
 
+# Sidecar deployment pack (host nginx, images, env — keep out of git)
+deployment/
+
 # Frontend
 frontend/node_modules/
 frontend/dist/
