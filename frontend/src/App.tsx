@@ -13,7 +13,9 @@ import { BookWorkspacePage } from '@/pages/BookWorkspace';
 import { CreateTenantPage } from '@/pages/CreateTenant';
 import { Dashboard } from '@/pages/Dashboard';
 import { GovernancePage } from '@/pages/Governance';
+import { InterestFormPage } from '@/pages/InterestForm';
 import { LaunchPage } from '@/pages/Launch';
+import { LandingPage } from '@/pages/LandingPage';
 import { LibraryPage } from '@/pages/Library';
 import { LoginCallbackPage } from '@/pages/LoginCallback';
 import { LoginPage } from '@/pages/Login';
@@ -30,11 +32,13 @@ import { TenantsPage } from '@/pages/Tenants';
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/interest" element={<InterestFormPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/login/callback" element={<LoginCallbackPage />} />
       <Route path="/logout" element={<LogoutPage />} />
       <Route
-        path="/"
+        path="/dashboard"
         element={
           <ProtectedRoute>
             <Dashboard />

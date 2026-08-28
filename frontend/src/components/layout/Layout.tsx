@@ -31,7 +31,7 @@ function NavItem({ to, icon, label }: NavItemProps) {
   return (
     <RouterNavLink
       to={to}
-      end={to === '/'}
+      end={to === '/dashboard'}
       className={({ isActive }) =>
         cn(
           'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
@@ -57,7 +57,7 @@ export function Layout({ children }: LayoutProps) {
 
   const navItems = (
     <>
-      <NavItem to="/" icon={<LayoutDashboard className="h-4 w-4" />} label="Home" />
+      <NavItem to="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} label="Home" />
       <NavItem
         to="/library"
         icon={<BookOpen className="h-4 w-4" />}
@@ -91,7 +91,7 @@ export function Layout({ children }: LayoutProps) {
     <div className="flex min-h-screen bg-background">
       <aside className="hidden w-64 flex-col border-r bg-card md:flex">
         <div className="flex items-center gap-2 border-b px-4 py-4 text-lg font-semibold text-foreground">
-          <img src="/servilia.png" alt="Servalia" className="h-8 w-8 object-contain" />
+          <img src="/creator_trust.png" alt="CreatorTrust" className="h-8 w-8 object-contain" />
           CreatorTrust
         </div>
 
@@ -115,7 +115,7 @@ export function Layout({ children }: LayoutProps) {
       <div className="flex flex-1 flex-col">
         <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:hidden">
           <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
-            <img src="/servilia.png" alt="Servalia" className="h-7 w-7 object-contain" />
+            <img src="/creator_trust.png" alt="CreatorTrust" className="h-7 w-7 object-contain" />
             CreatorTrust
           </div>
           <div className="flex items-center gap-2">

@@ -42,6 +42,7 @@ from thebe_core.creator.service import CreatorService
 from thebe_core.jobs import JobService
 from thebe_core.models import (
     AuditEvent,
+    InterestSubmission,
     QuestionCatalog,
     TimelineEvent,
 )
@@ -197,6 +198,25 @@ class JobResponse(BaseModel):
     updated_at: datetime
     started_at: datetime | None = None
     completed_at: datetime | None = None
+
+
+class InterestSubmissionRequest(BaseModel):
+    name: str
+    email: str
+    organization: str | None = None
+    role: str | None = None
+    message: str | None = None
+
+
+class InterestSubmissionResponse(BaseModel):
+    submission_id: str
+    name: str
+    email: str
+    organization: str | None = None
+    role: str | None = None
+    message: str | None = None
+    created_at: datetime
+    status: str
 
 
 class SystemEventResponse(BaseModel):
@@ -762,6 +782,42 @@ async def get_question_catalog(
             detail=f"Question catalog not found for vertical: {vertical_id}",
         )
     return catalog
+
+@app.post("/interest", response_model=InterestSubmissionResponse, status_code=201)
+async def submit_interest(
+    payload: InterestSubmissionRequest,
+    request: Request,
+) -> InterestSubmissionResponse:
+    """Public endpoint for interest form submissions - no authentication required."""
+    submission = InterestSubmission(**payload.model_dump())
+    
+    # Insert into database
+    async with app.state.audit.engine.connect() as conn:
+        await conn.execute(
+            text(
+                """
+                INSERT INTO interest_submissions 
+                (submission_id, name, email, organization, role, message, created_at, status)
+                VALUES (:submission_id, :name, :email, :organization, :role, :message, :created_at, :status)
+                """
+            ),
+            {
+                "submission_id": submission.submission_id,
+                "name": submission.name,
+                "email": submission.email,
+                "organization": submission.organization,
+                "role": submission.role,
+                "message": submission.message,
+                "created_at": submission.created_at,
+                "status": submission.status,
+            },
+        )
+        await conn.commit()
+    
+    logger.info("Interest submission received: %s from %s", submission.submission_id, submission.email)
+    
+    return InterestSubmissionResponse(**submission.model_dump())
+
 
 @app.get("/health")
 async def health() -> dict[str, str]:

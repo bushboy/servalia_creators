@@ -168,7 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setApiKey(apiKey);
         setHasCredentials(true);
         await loadTenant();
-        const from = (location.state as { from?: string })?.from || '/';
+        const from = (location.state as { from?: string })?.from || '/dashboard';
         navigate(from, { replace: true });
       } catch (err) {
         setError(err instanceof Error ? err : new Error(String(err)));
@@ -196,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!tenantList || tenantList.length === 0) {
         navigate('/create-tenant', { replace: true });
       } else {
-        navigate('/', { replace: true });
+        navigate('/dashboard', { replace: true });
       }
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)));

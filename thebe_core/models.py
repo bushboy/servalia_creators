@@ -231,3 +231,16 @@ class TimelineEvent(BaseModel):
     vertical: str | None = None
     summary: str = ""
     links: dict[str, str] = Field(default_factory=dict)
+
+
+class InterestSubmission(BaseModel):
+    """Interest form submission from potential customers."""
+
+    submission_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: str
+    organization: str | None = None
+    role: str | None = None
+    message: str | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    status: str = "new"  # new | contacted | qualified | closed

@@ -34,11 +34,12 @@ export default defineConfig({
         url: 'http://localhost:5173',
         reuseExistingServer: !process.env.CI,
         timeout: 120000,
-        env: __assign(__assign({}, process.env), { 
+        env: __assign(__assign(__assign({}, process.env), { 
             // Prefer Vite proxy to the local API (see vite.config.ts).
-            VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '/api',
-            VITE_API_PROXY_TARGET: e2eApi
-                ? (process.env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:8000')
-                : process.env.VITE_API_PROXY_TARGET }),
+            VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '/api' }), (e2eApi
+            ? {
+                VITE_API_PROXY_TARGET: process.env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:8000',
+            }
+            : {})),
     },
 });

@@ -19,9 +19,7 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm space-y-6 rounded-lg border bg-card p-8 shadow-sm">
         <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="flex h-40 w-40 items-center justify-center rounded-full bg-primary/10 p-4">
-            <img src="/servilia.png" alt="Servalia" className="h-full w-full object-contain" />
-          </div>
+          <img src="/creator_trust.png" alt="CreatorTrust" className="h-32 w-32 object-contain" />
           <h1 className="text-2xl font-bold tracking-tight">CreatorTrust</h1>
           <p className="text-sm text-muted-foreground">
             Sign in to your publishing Mind.
